@@ -1,0 +1,38 @@
+{
+  "name": "mikechan-bot",
+  "version": "1.0.0",
+  "description": "ミケちゃんがslackの平和を守ります",
+  "main": "./dist/index",
+  "scripts": {
+    "start": "node ./dist/index",
+    "update:win": "nodist use v6 && nodist global v6 && npm run update:global && npm run update:package",
+    "update:global": "npm update -g npm && npm i -g git://github.com/gulpjs/gulp.git#4.0",
+    "update:package": "npm update -D && npm update -S && npm remove -S node-notifier && npm i -D node-notifier@4.5.0",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "engines": {
+    "node": "6.x.x",
+    "npm": "3.x.x"
+  },
+  "keywords": [],
+  "author": "gao",
+  "license": "MIT",
+  "dependencies": {
+    "date-with-offset": "^1.0.1",
+    "gulp": "git://github.com/gulpjs/gulp.git#4.0",
+    "slackbots": "git://github.com/gaogao-9/slack-bot-api.git"
+  },
+  "devDependencies": {
+    "babel-plugin-add-module-exports": "^0.2.1",
+    "babel-polyfill": "^6.13.0",
+    "babel-preset-es2017": "^1.6.1",
+    "babel-register": "^6.9.0",
+    "del": "^2.2.1",
+    "globby": "^6.0.0",
+    "gulp": "git://github.com/gulpjs/gulp.git#4.0",
+    "gulp-babel": "^6.1.2",
+    "gulp-plumber": "^1.1.0",
+    "gulp-sourcemaps": "^1.6.0",
+    "node-notifier": "^4.5.0"
+  }
+}
