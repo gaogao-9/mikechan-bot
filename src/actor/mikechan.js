@@ -77,6 +77,8 @@ export default {
 				const {type, subtype, text} = messageInfo.messageObject;
 				const {reply}               = messageInfo.symbols;
 				
+				if(type !== "message") return false;
+				if(subtype) return false;
 				if(alreadyCalled) return false;
 				
 				return reply.includes("akeno_m");
