@@ -40,8 +40,6 @@ jspm_packages
 # temp directory
 temp
 
-# dist directory
-dist
-
 # secret token
 src/slackToken.js
+dist/slackToken.js
