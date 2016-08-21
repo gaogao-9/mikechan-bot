@@ -19,12 +19,12 @@
   "license": "MIT",
   "dependencies": {
     "date-with-offset": "^1.0.1",
+    "babel-polyfill": "^6.13.0",
     "gulp": "git://github.com/gulpjs/gulp.git#4.0",
     "slackbots": "git://github.com/gaogao-9/slack-bot-api.git"
   },
   "devDependencies": {
     "babel-plugin-add-module-exports": "^0.2.1",
-    "babel-polyfill": "^6.13.0",
     "babel-preset-es2017": "^1.6.1",
     "babel-register": "^6.9.0",
     "del": "^2.2.1",

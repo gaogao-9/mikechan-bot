@@ -1,1 +1,1 @@
-web: gulp release && npm start
+web: npm run update:global && gulp release && npm start
