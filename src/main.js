@@ -73,13 +73,19 @@ async function startSlackBot(){
 		.on("close",()=> {
 			console.log("on close");
 			throw new Error("stream closed");
+		})
+		.on("error",(err)=> {
+			console.log("ERROR at stream");
+			console.error((err&&err.stack) || err);
+			
+			setTimeout(messageLoop, 0);
 		});
 	
 	await slackBot.login();
 }
 
 // 落ちた時に自動で再起動します
-async function messageLoop(delay){
+async function messageLoop(delay=1){
 	try{
 		await startSlackBot();
 	}
@@ -93,7 +99,7 @@ async function messageLoop(delay){
 	}
 }
 
-messageLoop(1).catch(err=>{
+messageLoop().catch(err=>{
 	console.error("†Unhandled Error†");
 	console.error((err&&err.stack) || err);
 	throw err;
