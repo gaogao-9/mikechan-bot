@@ -42,17 +42,14 @@ class PostMessageFormatter{
 		
 		// リプライ先の付与
 		if(rawMsgObj.replyToName){
-			text = `@${rawMsgObj.replyToName} ${text}`;
-		}
-		else if(rawMsgObj.replyTo){
 			const usersList = (await this.slackBot.getUsers()).members;
-			const replyTo  = usersList.find((obj)=> (obj.id===rawMsgObj.replyTo));
+			const replyTo   = usersList.find((obj)=> (obj.name===rawMsgObj.replyToName));
 			
-			rawMsgObj.replyToName = replyTo.name;
-			
-			if(replyTo){
-				text = `@${replyTo.name} ${text}`;
-			}
+			rawMsgObj.replyTo = replyTo.name;
+		}
+		
+		if(rawMsgObj.replyTo){
+			text = `<@${rawMsgObj.replyTo}> ${text}`;
 		}
 		
 		delete msgObj.replyToName;
