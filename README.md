@@ -9,7 +9,7 @@ process.env.NODE_SLACK_OWNER_TOKEN = "xoxp-XXXXXXXXXXX-XXXXXXXXXXX-XXXXXXXXXXX-X
 process.env.NODE_SLACK_BOT_TOKEN   = "xoxb-XXXXXXXXXXX-XXXXXXXXXXXXXXXXXXXXXXXX";
 ```
 
-もしくは、実行寺パラメータに直接指定する。どっちでも良いのでトークンを与えればおｋ。
+もしくは、実行時パラメータに直接指定する。どっちでも良いのでトークンを与えればおｋ。
 
 次に、以下のコマンドをぶち込む。win向けしか用意してないので他のOS向けは適宜PRが欲しい。
 
