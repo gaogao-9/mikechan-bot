@@ -2,7 +2,7 @@
 私、岬明乃！ブルーマーメイドを目指して海洋学校に入学したけど初の実習で教官の船から攻撃を受けてしまったの。艦長として晴風とみんなを守りたい！ハイスクール・フリート第一巻、6月22日発売！
 
 # usage
-srcディレクトリ直下に「slackToken.js」を用意して、以下のように記述する。
+srcディレクトリ直下に「setting.js」を用意して、以下のように記述する。
 
 ```js
 process.env.NODE_SLACK_OWNER_TOKEN = "xoxp-XXXXXXXXXXX-XXXXXXXXXXX-XXXXXXXXXXX-XXXXXXXXXX";
