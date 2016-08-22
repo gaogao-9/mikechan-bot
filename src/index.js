@@ -3,9 +3,11 @@ require('module')._initPaths();
 
 if(process.env.NODE_ENV !== "production"){
 	try{
-		require("./slackToken");
+		require("./settings");
 	}
-	catch(err){}
+	catch(err){
+		console.info("設定ファイルを読み込みませんでした。");
+	}
 }
 else{
 	// herokuはサーバー立てないと再起動するらしい(闇)

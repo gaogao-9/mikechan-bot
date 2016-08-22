@@ -18,10 +18,12 @@
   "author": "gao",
   "license": "MIT",
   "dependencies": {
-    "date-with-offset": "^1.0.1",
+    "@slack/client": "^3.5.4",
     "babel-polyfill": "^6.13.0",
+    "camelize": "^1.0.0",
+    "date-with-offset": "^1.0.1",
     "gulp": "git://github.com/gulpjs/gulp.git#4.0",
-    "slackbots": "git://github.com/gaogao-9/slack-bot-api.git"
+    "snakeize": "^0.1.0"
   },
   "devDependencies": {
     "babel-plugin-add-module-exports": "^0.2.1",
