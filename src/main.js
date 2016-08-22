@@ -1,106 +1,98 @@
-import SlackBot from "slackbots"
+import {RtmClient, MemoryDataStore, CLIENT_EVENTS, RTM_EVENTS} from "@slack/client"
 import GetMessageFormatter from "Util/GetMessageFormatter"
 import PostMessageFormatter from "Util/PostMessageFormatter"
 import sleep from "Util/sleep"
 import botList from "./actor/index"
 
-// エントリポイント
-async function startSlackBot(){
-	// SlackBot用インスタンスの生成
-	const slackBot = new SlackBot({
-		token: process.env.NODE_SLACK_BOT_TOKEN,
-	});
-	// メッセージオブジェクトの整形クラスの生成
-	const getMessageFormatter  = new GetMessageFormatter(slackBot);
-	const postMessageFormatter = new PostMessageFormatter(slackBot);
+const RTM_CLIENT_EVENTS = CLIENT_EVENTS.RTM;
+
+(async ()=> {
+	const ownerRTMp = {};
+	const createOption = (opt)=> Object.assign({ dataStore: new MemoryDataStore() }, opt);
 	
-	// デバッグ用(投稿を止める)
-	// slackBot.postMessage = ((_,__,messageObject)=>Promise.resolve(messageObject));
-	
-	slackBot
-		.on("start",()=> {
-			// define channel, where bot exist. You can adjust it there https://my.slack.com/services  
-			console.log("on start");
+	createRTM(process.env.SLACK_OWNER_TOKEN, createOption({logLevel: "error"}))
+		.on(RTM_CLIENT_EVENTS.AUTHENTICATED, function(rtmStartData){
+			ownerRTMp.v = this;
 		})
-		.on("message",async (data)=> {
+		.start();
+	
+	for(const bot of botList){
+		createRTM(
+				process.env[`SLACK_BOT_TOKEN_${bot.name.toUpperCase()}`],
+				createOption((process.env.NODE_ENV !== "production") ? {logLevel: "debug"} : {logLevel: "error"}),
+				bot,
+				ownerRTMp,
+			)
+			.start();
+	}
+})().catch((err)=> {
+	console.error("†Unhandled Error†");
+	console.error((err&&err.stack) || err);
+});
+
+function createRTM(token, option={dataStore: new MemoryDataStore()}, bot, ownerRTMp){
+	const rtm     = new RtmClient(token, option);
+	
+	rtm.on(RTM_CLIENT_EVENTS.AUTHENTICATED, (rtmStartData)=> {
+		console.log(`${rtmStartData.self.name} の認証に成功しました。`);
+	});
+	
+	if(bot){
+		rtm.on(RTM_EVENTS.MESSAGE, async (message)=> {
 			try{
-				const req = await getMessageFormatter.format(data);
+				let alreadyCalled = false;
 				
-				for(const bot of botList){
-					let alreadyCalled = false;
-					
-					for(const actor of bot.actorList){
-						try{
-							if(!actor.filter(req, alreadyCalled)) continue;
-							
-							const res = await actor.action.call(slackBot, req, process.env.NODE_SLACK_OWNER_TOKEN, slackBot);
-							if(!res) continue;
-							
-							alreadyCalled = true;
-							
-							if(typeof(res) !== "object") continue;
-							
-							const messagePostObject = await postMessageFormatter.format(res);
-							const {channelId, text} = messagePostObject;
-							
-							messagePostObject.username = messagePostObject.username || bot.username;
-							messagePostObject.icon_url = messagePostObject.icon_url || bot.iconUrl;
-							messagePostObject.as_user  = messagePostObject.as_user  || bot.asUser;
-							
-							delete messagePostObject.asUser;
-							delete messagePostObject.iconUrl;
-							delete messagePostObject.channelId;
-							delete messagePostObject.text;
-							
-							await slackBot.postMessage(channelId, text, messagePostObject);
-						}
-						catch(err){
-							console.log("ERROR at actor");
-							console.error((err&&err.stack) || err);
-						}
+				const recievedMessage = GetMessageFormatter.format(message, rtm.dataStore);
+				
+				for(const actor of bot.actorList){
+					try{
+						if(!actor.filter(recievedMessage, alreadyCalled)) continue;
+						
+						const responseMessage = await actor.action.call(rtm, recievedMessage, ownerRTMp.v, rtm);
+						if(!responseMessage) continue;
+						
+						alreadyCalled = true;
+						
+						if(typeof(responseMessage) !== "object") continue;
+						
+						const sendingMessage = PostMessageFormatter.format(responseMessage);
+						
+						sendingMessage.username = sendingMessage.username || bot.username;
+						sendingMessage.icon_url = sendingMessage.icon_url || bot.iconUrl;
+						sendingMessage.as_user  = sendingMessage.as_user  || bot.asUser;
+						
+						await new Promise((resolve, reject)=> {
+							rtm.send(Object.assign({ type: RTM_API_EVENTS.MESSAGE }, sendingMessage), (err, msg)=> {
+								if(err) reject(err);
+								resolve(msg);
+							});
+						});
+					}
+					catch(err){
+						console.log("actorの呼び出し途中にエラーが発生しました。");
+						console.error((err&&err.stack) || err);
 					}
 				}
 			}
 			catch(err){
-				console.log("ERROR at onmessage");
+				console.log("messageの呼び出し途中にエラーが発生しました。");
 				console.error((err&&err.stack) || err);
 			}
+		});
+	}
+	
+	rtm
+		.on(RTM_CLIENT_EVENTS.DISCONNECT, ()=> {
+			console.log("通信途絶しました");
 		})
-		.on("open",()=> {
-			console.log("on open");
-			
-		})
-		.on("close",()=> {
-			console.log("on close");
-			slackBot.emit("error", new Error("stream closed"));
-		})
-		.on("error",(err)=> {
-			console.log("ERROR at stream");
+		.on(RTM_CLIENT_EVENTS.WS_ERROR, (err)=> {
+			console.log("websocketで何らかのエラーが発生しました。");
 			console.error((err&&err.stack) || err);
-			
-			setTimeout(messageLoop, 0);
+		})
+		.on(RTM_CLIENT_EVENTS.WS_CLOSE, ()=> {
+			console.log("websocketが閉じられました(3秒後に再接続します)");
+			sleep(3000).then(()=> createRTM(token, actorList).start());
 		});
 	
-	await slackBot.login();
+	return rtm;
 }
-
-// 落ちた時に自動で再起動します
-async function messageLoop(delay=1){
-	try{
-		await startSlackBot();
-	}
-	catch(err){
-		console.log("ERROR at messageLoop");
-		console.error((err&&err.stack) || err);
-		console.log(`${delay}秒後に再接続します…`);
-		
-		await sleep(delay*1000);
-		messageLoop(Math.min(delay*2,60));
-	}
-}
-
-messageLoop().catch(err=>{
-	console.error("†Unhandled Error†");
-	console.error((err&&err.stack) || err);
-	throw err;
-});

@@ -1,4 +1,5 @@
-import DateWithOffset from "date-with-offset";
+import snakeize from "snakeize"
+import DateWithOffset from "date-with-offset"
 
 class PostMessageFormatter{
 	constructor(slackBot){
@@ -8,67 +9,64 @@ class PostMessageFormatter{
 	get slackBot(){
 		return this._slackBot;
 	}
-	
-	async format(msgObj){
+	static format(message, dataStore){
 		// オブジェクトの整形を行う
-		msgObj      = await this.formatObject(msgObj);
-		msgObj.text = await this.formatText(msgObj);
+		message = formatObject(message, dataStore);
+		
+		// テキストの整形を行う
+		message.text = formatText(message, dataStore);
 		
 		// 投稿結果オブジェクトを返す
-		return msgObj;
+		return message;
+	}
+}
+
+function formatObject(message, dataStore){
+	// キャメルケースを全てスネークケースに変換する
+	message = snakeize(message);
+	
+	// チャンネルIDの取得
+	if(message.channel_name){
+		const channel = dataStore.getChannelByName(message.channel_name);
+		message.channel = channel.id;
+		delete message.channel_name;
 	}
 	
-	async formatObject(msgObj){
-		// チャンネルIDの取得
-		if(msgObj.channel_name){
-			const channel = await this.slackBot.getChannel(msgObj.channel_name);
-			msgObj.channel = channel.id;
-			delete msgObj.channel_name;
-		}
+	return message;
+}
+
+function formatText(message, dataStore){
+	let text = message.text || "";
+	const rawMessage = Object.assign({}, message);
+	
+	// リプライ先の付与
+	if(rawMessage.reply_to_name){
+		const userInfo = dataStore.getUserByName(rawMessage.reply_to_name);
 		
-		return msgObj;
+		rawMessage.reply_to = userInfo.id;
+	}
+	if(rawMessage.reply_to){
+		text = `<@${rawMessage.reply_to}> ${text}`;
 	}
 	
-	async formatText(msgObj){
-		let text = msgObj.text || "";
-		const rawMsgObj = Object.assign({}, msgObj);
-		
-		// アイコンURLの正規化
-		if(rawMsgObj.iconUrl){
-			msgObj.icon_url = rawMsgObj.iconUrl;
-		}
-		
-		delete msgObj.iconUrl;
-		
-		// リプライ先の付与
-		if(rawMsgObj.replyToName){
-			const usersList = (await this.slackBot.getUsers()).members;
-			const replyTo   = usersList.find((obj)=> (obj.name===rawMsgObj.replyToName));
-			
-			rawMsgObj.replyTo = replyTo.name;
-		}
-		
-		if(rawMsgObj.replyTo){
-			text = `<@${rawMsgObj.replyTo}> ${text}`;
-		}
-		
-		delete msgObj.replyToName;
-		delete msgObj.replyTo;
-		
-		// Pingテキストの付与
-		if(rawMsgObj.usePing && rawMsgObj.ts){
-			text += ` (${(((new DateWithOffset(540)) - rawMsgObj.ts*1000)/1000).toFixed(3)}sec)`;
-		}
-		delete msgObj.usePing;
-		
-		// 置換が必要なテキストがあったら置換する
-		text = text.replace(/\$([a-zA-Z0-9_]+)/g,($0,$1)=>{
-			if(typeof(rawMsgObj[$1]) !== "undefined") return rawMsgObj[$1];
-			return $0;
-		});
-		
-		return text;
+	delete message.reply_to_name;
+	delete message.reply_to;
+	
+	// Pingテキストの付与
+	if(rawMessage.use_ping && rawMessage.ts){
+		text += ` (${(((new DateWithOffset(540)) - rawMessage.ts*1000)/1000).toFixed(3)}sec)`;
 	}
+	delete message.use_ping;
+	
+	// 置換が必要なテキストがあったら置換する
+	text = text.replace(/\$([a-zA-Z0-9_]+)/g, ($0, $1)=> {
+		if(rawMessage[$1] !== undefined){
+			return rawMessage[$1];
+		}
+		return $0;
+	});
+	
+	return text;
 }
 
 export default PostMessageFormatter;
