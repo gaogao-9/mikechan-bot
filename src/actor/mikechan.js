@@ -41,7 +41,7 @@ export default {
 				if(subtype) return false;
 				if(!reply.includes("akeno_m")) return false;
 				
-				return /((皆|みんな)|(全員|ぜんいん)).*([呼よ](べ|んで)|(集合|しゅ[うー]ご[うー]))/.test(text);
+				return /((皆|みんな)|(全員|ぜんいん)).*([呼よ](ぶ|べ|ぼう|んで)|(集合|しゅ[うー]ご[うー]))/.test(text);
 			},
 			async action(messageInfo, ownerToken){
 				const {channel: channelId, user} = messageInfo.messageObject;
