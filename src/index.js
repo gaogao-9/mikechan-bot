@@ -3,7 +3,7 @@ require('module')._initPaths();
 
 if(process.env.NODE_ENV !== "production"){
 	try{
-		require("./settings");
+		require("./setting");
 	}
 	catch(err){
 		console.info("設定ファイルを読み込みませんでした。");
