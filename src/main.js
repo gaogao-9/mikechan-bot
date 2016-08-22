@@ -72,7 +72,7 @@ async function startSlackBot(){
 		})
 		.on("close",()=> {
 			console.log("on close");
-			throw new Error("stream closed");
+			slackBot.emit("error", new Error("stream closed"));
 		})
 		.on("error",(err)=> {
 			console.log("ERROR at stream");
