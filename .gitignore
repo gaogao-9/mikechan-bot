@@ -41,5 +41,5 @@ jspm_packages
 temp
 
 # secret token
-src/slackToken.js
-dist/slackToken.js
+src/settings.js
+dist/settings.js
