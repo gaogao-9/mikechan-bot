@@ -1,4 +1,4 @@
-import {RtmClient, MemoryDataStore, CLIENT_EVENTS, RTM_EVENTS} from "@slack/client"
+import {WebClient, RtmClient, MemoryDataStore, CLIENT_EVENTS, RTM_EVENTS} from "@slack/client"
 import GetMessageFormatter from "Util/GetMessageFormatter"
 import PostMessageFormatter from "Util/PostMessageFormatter"
 import sleep from "Util/sleep"
@@ -7,21 +7,15 @@ import botList from "./actor/index"
 const RTM_CLIENT_EVENTS = CLIENT_EVENTS.RTM;
 
 (async ()=> {
-	const ownerRTMp = {};
 	const createOption = (opt)=> Object.assign({ dataStore: new MemoryDataStore() }, opt);
-	
-	createRTM(process.env.SLACK_OWNER_TOKEN, createOption({logLevel: "error"}))
-		.on(RTM_CLIENT_EVENTS.AUTHENTICATED, function(rtmStartData){
-			ownerRTMp.v = this;
-		})
-		.start();
+	const ownerClient = new WebClient(process.env.SLACK_OWNER_TOKEN, createOption({logLevel: "error"}));
 	
 	for(const bot of botList){
 		createRTM(
-				process.env[`SLACK_BOT_TOKEN_${bot.name.toUpperCase()}`],
+				process.env[`SLACK_BOT_TOKEN_${bot.username.toUpperCase()}`],
 				createOption((process.env.NODE_ENV !== "production") ? {logLevel: "debug"} : {logLevel: "error"}),
 				bot,
-				ownerRTMp,
+				ownerClient,
 			)
 			.start();
 	}
@@ -30,25 +24,27 @@ const RTM_CLIENT_EVENTS = CLIENT_EVENTS.RTM;
 	console.error((err&&err.stack) || err);
 });
 
-function createRTM(token, option={dataStore: new MemoryDataStore()}, bot, ownerRTMp){
+function createRTM(token, option={dataStore: new MemoryDataStore()}, bot, ownerClient){
 	const rtm     = new RtmClient(token, option);
 	
 	rtm.on(RTM_CLIENT_EVENTS.AUTHENTICATED, (rtmStartData)=> {
-		console.log(`${rtmStartData.self.name} の認証に成功しました。`);
+		console.log(`${rtmStartData.self.name} の認証に成功しました`);
 	});
 	
 	if(bot){
-		rtm.on(RTM_EVENTS.MESSAGE, async (message)=> {
+		rtm.on(RTM_CLIENT_EVENTS.RAW_MESSAGE, async (message)=> {
 			try{
+				// メッセージをJSONオブジェクトに変換
+				message = JSON.parse(message);
+				
+				const recievedMessageInfo = GetMessageFormatter.format(message, rtm.dataStore);
+				
 				let alreadyCalled = false;
-				
-				const recievedMessage = GetMessageFormatter.format(message, rtm.dataStore);
-				
 				for(const actor of bot.actorList){
 					try{
-						if(!actor.filter(recievedMessage, alreadyCalled)) continue;
+						if(!actor.filter(recievedMessageInfo.message, recievedMessageInfo.entities, alreadyCalled)) continue;
 						
-						const responseMessage = await actor.action.call(rtm, recievedMessage, ownerRTMp.v, rtm);
+						const responseMessage = await actor.action.call(rtm, recievedMessageInfo.message, recievedMessageInfo.entities, ownerClient, rtm);
 						if(!responseMessage) continue;
 						
 						alreadyCalled = true;
@@ -62,20 +58,20 @@ function createRTM(token, option={dataStore: new MemoryDataStore()}, bot, ownerR
 						sendingMessage.as_user  = sendingMessage.as_user  || bot.asUser;
 						
 						await new Promise((resolve, reject)=> {
-							rtm.send(Object.assign({ type: RTM_API_EVENTS.MESSAGE }, sendingMessage), (err, msg)=> {
+							rtm.send(Object.assign({ type: RTM_EVENTS.MESSAGE }, sendingMessage), (err, msg)=> {
 								if(err) reject(err);
 								resolve(msg);
 							});
 						});
 					}
 					catch(err){
-						console.log("actorの呼び出し途中にエラーが発生しました。");
+						console.log("actorの呼び出し途中にエラーが発生しました");
 						console.error((err&&err.stack) || err);
 					}
 				}
 			}
 			catch(err){
-				console.log("messageの呼び出し途中にエラーが発生しました。");
+				console.log("messageの呼び出し途中にエラーが発生しました");
 				console.error((err&&err.stack) || err);
 			}
 		});
@@ -83,10 +79,10 @@ function createRTM(token, option={dataStore: new MemoryDataStore()}, bot, ownerR
 	
 	rtm
 		.on(RTM_CLIENT_EVENTS.DISCONNECT, ()=> {
-			console.log("通信途絶しました");
+			console.log("通信が途絶しました");
 		})
 		.on(RTM_CLIENT_EVENTS.WS_ERROR, (err)=> {
-			console.log("websocketで何らかのエラーが発生しました。");
+			console.log("websocketで何らかのエラーが発生しました");
 			console.error((err&&err.stack) || err);
 		})
 		.on(RTM_CLIENT_EVENTS.WS_CLOSE, ()=> {
