@@ -33,7 +33,7 @@ export default {
 					
 					// オーナー権限でbotを招待する
 					await new Promise((resolve, reject)=> {
-						ownerClient.channels.invite({ channel, user: this.activeUserId }, (err, res)=> {
+						ownerClient.channels.invite(channel, this.activeUserId, (err, res)=> {
 							if(err) reject(err);
 							resolve(res);
 						});
@@ -67,7 +67,7 @@ export default {
 					
 					// オーナー権限でメンバーを招待する
 					await new Promise((resolve, reject)=> {
-						ownerClient.channels.invite({ channel: channelInfo.id, user }, (err, res)=> {
+						ownerClient.channels.invite(channelInfo.id, user, (err, res)=> {
 							if(err) reject(err);
 							resolve(res);
 						});
