@@ -16,8 +16,6 @@ export default {
 			async action(message, entities, ownerClient){
 				let ownerInfo;
 				
-				console.log(this.dataStore);
-				
 				for(const [channel, channelInfo] of Object.entries(this.dataStore.channels)){
 					// 既に参加していたらスルー
 					if(channelInfo.is_member) continue;
@@ -53,7 +51,7 @@ export default {
 				
 				if(type !== RTM_EVENTS.MESSAGE) return false;
 				if(subtype) return false;
-				if(!reply.includes(username)) return false;
+				if(!~reply.findIndex((user)=> user.name === username)) return false;
 				
 				return /((皆|みんな)|(全員|ぜんいん)).*([呼よ](ぶ|べ|ぼう|んで)|(集合|しゅ[うー]ご[うー]))/.test(text);
 			},
