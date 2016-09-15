@@ -24,7 +24,7 @@ export default {
 					ownerInfo = ownerInfo || await ownerClient.auth.test();
 					
 					// オーナーが参加してない場合は、スルー
-					if(!channelInfo.members.includes(ownerInfo.user_id)) continue;
+					if(channelInfo.members && !channelInfo.members.includes(ownerInfo.user_id)) continue;
 					
 					// オーナー権限でbotを招待する
 					await ownerClient.channels.invite(channel, this.activeUserId);

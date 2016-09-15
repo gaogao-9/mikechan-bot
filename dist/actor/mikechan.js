@@ -2,7 +2,7 @@
 {filter(message,entities,alreadyCalled){const type=message.type;const subtype=message.subtype;return type===_client.RTM_EVENTS.HELLO||type===_client.RTM_EVENTS.CHANNEL_CREATED;},action(message,entities,ownerClient){var _this=this;return _asyncToGenerator(function*(){let ownerInfo;for(const _ref of Object.entries(_this.dataStore.channels)){var _ref2=_slicedToArray(_ref,2);const channel=_ref2[0];const channelInfo=_ref2[1];// 既に参加していたらスルー
 if(channelInfo.is_member)continue;// オーナー情報を取得する(キャッシュを行う)
 ownerInfo=ownerInfo||(yield ownerClient.auth.test());// オーナーが参加してない場合は、スルー
-if(!(channelInfo.members.indexOf(ownerInfo.user_id)!==-1))continue;// オーナー権限でbotを招待する
+if(channelInfo.members&&!(channelInfo.members.indexOf(ownerInfo.user_id)!==-1))continue;// オーナー権限でbotを招待する
 yield ownerClient.channels.invite(channel,_this.activeUserId);}return true;})();}},// そのチャンネルに所属しないメンバーを全員呼んでくる
 {filter(message,entities,alreadyCalled){const type=message.type;const subtype=message.subtype;const text=message.text;const reply=entities.reply;if(type!==_client.RTM_EVENTS.MESSAGE)return false;if(subtype)return false;if(!~reply.findIndex(user=>user.name===username))return false;return /((皆|みんな)|(全員|ぜんいん)).*([呼よ](ぶ|べ|ぼう|んで)|(集合|しゅ[うー]ご[うー]))/.test(text);},action(message,entities,ownerClient){var _this2=this;return _asyncToGenerator(function*(){const channel=message.channel;const user=message.user;const channelInfo=_this2.dataStore.getChannelById(channel);if(!channelInfo)return;for(const user of Object.keys(_this2.dataStore.users)){// 既に参加していたらスルー
 if(channelInfo.members.indexOf(user)!==-1)continue;// オーナー権限でメンバーを招待する
