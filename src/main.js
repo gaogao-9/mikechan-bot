@@ -11,7 +11,7 @@ const RTM_CLIENT_EVENTS = CLIENT_EVENTS.RTM;
 	const ownerClient = new WebClient(process.env.SLACK_OWNER_TOKEN, createOption({logLevel: "error"}));
 	
 	for(const bot of botList){
-		createRTM(
+		await createRTM(
 				process.env[`SLACK_BOT_TOKEN_${bot.username.toUpperCase()}`],
 				createOption((process.env.NODE_ENV !== "production") ? {logLevel: "debug"} : {logLevel: "error"}),
 				bot,

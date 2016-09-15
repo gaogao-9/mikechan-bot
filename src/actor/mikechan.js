@@ -21,23 +21,13 @@ export default {
 					if(channelInfo.is_member) continue;
 					
 					// オーナー情報を取得する(キャッシュを行う)
-					ownerInfo = ownerInfo || await new Promise((resolve, reject)=> {
-						ownerClient.auth.test((err, res)=> {
-							if(err) reject(err);
-							resolve(res);
-						});
-					});
+					ownerInfo = ownerInfo || await ownerClient.auth.test();
 					
 					// オーナーが参加してない場合は、スルー
 					if(!channelInfo.members.includes(ownerInfo.user_id)) continue;
 					
 					// オーナー権限でbotを招待する
-					await new Promise((resolve, reject)=> {
-						ownerClient.channels.invite(channel, this.activeUserId, (err, res)=> {
-							if(err) reject(err);
-							resolve(res);
-						});
-					});
+					await ownerClient.channels.invite(channel, this.activeUserId);
 				}
 				
 				return true;
@@ -66,12 +56,7 @@ export default {
 					if(channelInfo.members.includes(user)) continue;
 					
 					// オーナー権限でメンバーを招待する
-					await new Promise((resolve, reject)=> {
-						ownerClient.channels.invite(channelInfo.id, user, (err, res)=> {
-							if(err) reject(err);
-							resolve(res);
-						});
-					});
+					await ownerClient.channels.invite(channelInfo.id, user);
 				}
 				
 				return {
