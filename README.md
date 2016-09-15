@@ -5,8 +5,8 @@
 srcディレクトリ直下に「setting.js」を用意して、以下のように記述する。
 
 ```js
-process.env.NODE_SLACK_OWNER_TOKEN = "xoxp-XXXXXXXXXXX-XXXXXXXXXXX-XXXXXXXXXXX-XXXXXXXXXX";
-process.env.NODE_SLACK_BOT_TOKEN   = "xoxb-XXXXXXXXXXX-XXXXXXXXXXXXXXXXXXXXXXXX";
+process.env.SLACK_OWNER_TOKEN = "xoxp-XXXXXXXXXXX-XXXXXXXXXXX-XXXXXXXXXXX-XXXXXXXXXX";
+process.env.SLACK_BOT_TOKEN   = "xoxb-XXXXXXXXXXX-XXXXXXXXXXXXXXXXXXXXXXXX";
 ```
 
 もしくは、実行時パラメータに直接指定する。どっちでも良いのでトークンを与えればおｋ。
