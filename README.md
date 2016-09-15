@@ -6,8 +6,10 @@ srcディレクトリ直下に「setting.js」を用意して、以下のよう�
 
 ```js
 process.env.SLACK_OWNER_TOKEN = "xoxp-XXXXXXXXXXX-XXXXXXXXXXX-XXXXXXXXXXX-XXXXXXXXXX";
-process.env.SLACK_BOT_TOKEN   = "xoxb-XXXXXXXXXXX-XXXXXXXXXXXXXXXXXXXXXXXX";
+process.env.SLACK_BOT_TOKEN_(bot名を大文字表記したもの) = "xoxb-XXXXXXXXXXX-XXXXXXXXXXXXXXXXXXXXXXXX";
 ```
+
+例えば、bot名が(@akeno_m)だったら、`SLACK_BOT_TOKEN_AKENO_M`になります。
 
 もしくは、実行時パラメータに直接指定する。どっちでも良いのでトークンを与えればおｋ。
 
