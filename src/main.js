@@ -25,26 +25,27 @@ const RTM_CLIENT_EVENTS = CLIENT_EVENTS.RTM;
 });
 
 function createRTM(token, option={dataStore: new MemoryDataStore()}, bot, ownerClient){
-	const rtm     = new RtmClient(token, option);
+	const botRtm    = new RtmClient(token, option);
+	const botClient = new WebClient(token, option);
 	
-	rtm.on(RTM_CLIENT_EVENTS.AUTHENTICATED, (rtmStartData)=> {
-		console.log(`${rtmStartData.self.name} の認証に成功しました`);
+	botRtm.on(RTM_CLIENT_EVENTS.AUTHENTICATED, (botRtmStartData)=> {
+		console.log(`${botRtmStartData.self.name} の認証に成功しました`);
 	});
 	
 	if(bot){
-		rtm.on(RTM_CLIENT_EVENTS.RAW_MESSAGE, async (message)=> {
+		botRtm.on(RTM_CLIENT_EVENTS.RAW_MESSAGE, async (message)=> {
 			try{
 				// メッセージをJSONオブジェクトに変換
 				message = JSON.parse(message);
 				
-				const recievedMessageInfo = GetMessageFormatter.format(message, rtm.dataStore);
+				const recievedMessageInfo = GetMessageFormatter.format(message, botRtm.dataStore);
 				
 				let alreadyCalled = false;
 				for(const actor of bot.actorList){
 					try{
 						if(!actor.filter(recievedMessageInfo.message, recievedMessageInfo.entities, alreadyCalled)) continue;
 						
-						const responseMessage = await actor.action.call(rtm, recievedMessageInfo.message, recievedMessageInfo.entities, ownerClient, rtm);
+						const responseMessage = await actor.action.call(botRtm, recievedMessageInfo.message, recievedMessageInfo.entities, ownerClient, botClient, botRtm);
 						if(!responseMessage) continue;
 						
 						alreadyCalled = true;
@@ -57,12 +58,7 @@ function createRTM(token, option={dataStore: new MemoryDataStore()}, bot, ownerC
 						sendingMessage.icon_url = sendingMessage.icon_url || bot.iconUrl;
 						sendingMessage.as_user  = sendingMessage.as_user  || bot.asUser;
 						
-						await new Promise((resolve, reject)=> {
-							rtm.send(Object.assign({ type: RTM_EVENTS.MESSAGE }, sendingMessage), (err, msg)=> {
-								if(err) reject(err);
-								resolve(msg);
-							});
-						});
+						await botRtm.send(Object.assign({ type: RTM_EVENTS.MESSAGE }, sendingMessage));
 					}
 					catch(err){
 						console.log("actorの呼び出し途中にエラーが発生しました");
@@ -77,7 +73,7 @@ function createRTM(token, option={dataStore: new MemoryDataStore()}, bot, ownerC
 		});
 	}
 	
-	rtm
+	botRtm
 		.on(RTM_CLIENT_EVENTS.DISCONNECT, ()=> {
 			console.log("通信が途絶しました");
 		})
@@ -90,5 +86,5 @@ function createRTM(token, option={dataStore: new MemoryDataStore()}, bot, ownerC
 			sleep(3000).then(()=> createRTM(token, actorList).start());
 		});
 	
-	return rtm;
+	return botRtm;
 }
