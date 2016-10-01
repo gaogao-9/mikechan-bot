@@ -5,8 +5,7 @@ export default function randomMessage(wordList, matchRegExp=null, useAlreadyCall
 	if(typeof(wordList) === "string"){
 		wordList = [wordList];
 	}
-	wordList = SelectableArray
-		.from(wordList || [])
+	wordList = Array.from(wordList || [])
 		.filter((word)=> (word && (typeof(word) === "string")));
 	
 	return {
@@ -26,7 +25,7 @@ export default function randomMessage(wordList, matchRegExp=null, useAlreadyCall
 			if(!wordList || !wordList.length) return;
 			
 			// ランダムにワードを抽出する
-			const word = wordList.random();
+			const word = SelectableArray.prototype.random.call(wordList);
 			if(!word) return;
 			
 			// ワードに対して特定のタグの置換処理を行う

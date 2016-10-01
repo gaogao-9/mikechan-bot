@@ -45,6 +45,13 @@ export default {
 		// 空中リプが飛んできたら反応する
 		randomMessage(
 			[
+				"よーそろー！",
+			],
+			/よーそろー/,
+		),
+		// 空中リプが飛んできたら反応する
+		randomMessage(
+			[
 				"[[replyToName]]さん、呼びました？",
 				"岬明乃、いますよ～",
 			],

@@ -16,8 +16,17 @@ export default function callAllMembers(username, wordList, matchRegExp, useAlrea
 				// 既に参加していたらスルー
 				if(channelInfo.members.includes(user)) continue;
 				
-				// オーナー権限でメンバーを招待する
-				await ownerClient.channels.invite(channelInfo.id, user);
+				console.log(this.dataStore, this.dataStore.users, user);
+				console.log(channelInfo, channelInfo.members);
+				
+				// オーナー権限でメンバーを招待する(権限不足は無視)
+				try{
+					await ownerClient.channels.invite(channelInfo.id, user);
+				}
+				catch(err){
+					console.warn("ERROR at callAllMembers");
+					console.warn(err && err.message);
+				}
 			}
 			
 			return randomReplyObject.action.call(this, message, entities, ownerClient);
