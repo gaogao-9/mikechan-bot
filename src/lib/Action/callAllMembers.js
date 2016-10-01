@@ -2,7 +2,7 @@ import {RTM_EVENTS} from "@slack/client"
 import randomReply  from "Action/randomReply"
 
 export default function callAllMembers(username, wordList, matchRegExp, useAlreadyCalled=true){
-	const randomReplyObject = randomReply(wordList, matchRegExp, useAlreadyCalled);
+	const randomReplyObject = randomReply(username, wordList, matchRegExp, useAlreadyCalled);
 	
 	return {
 		filter: randomReplyObject.filter,
