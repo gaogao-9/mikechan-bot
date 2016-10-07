@@ -1,4 +1,5 @@
 import {RTM_EVENTS}   from "@slack/client"
+import randomFilter   from "Action/randomFilter"
 import autoJoin       from "Action/autoJoin"
 import addReaction    from "Action/addReaction"
 import callAllMembers from "Action/callAllMembers"
@@ -14,14 +15,16 @@ export default {
 		// 起動時もしくはチャンネル作成時に参加していない全てのチャンネルに参加を試みる
 		autoJoin(RTM_EVENTS.HELLO),
 		autoJoin(RTM_EVENTS.CHANNEL_CREATED),
-		// エゴサしてリアクションを付与する
-		addReaction(
-			[
-				"akeno",
-				"v::skin-tone-2",
-			],
-			/(?:みけ|ミケ|ﾐｹ|あけの|明乃)(?:ちゃん|さん)/,
-			false,
+		// エゴサしてリアクションを付与する(30%の確率)
+		randomFilter(
+			0.3,
+			addReaction(
+				[
+					"akeno",
+				],
+				/(?:みけ|ミケ|ﾐｹ|あけの|明乃)(?:ちゃん|さん)/,
+				false,
+			),
 		),
 		// そのチャンネルに所属しないメンバーを全員呼んでくる
 		callAllMembers(
