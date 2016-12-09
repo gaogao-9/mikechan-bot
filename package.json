@@ -4,9 +4,12 @@
   "description": "ミケちゃんがslackの平和を守ります",
   "main": "./dist/index",
   "scripts": {
+    "build:debug": "gulp build",
+    "build:release": "gulp release",
+    "install": "npm run build:release",
     "start": "node ./dist/index",
     "update:win": "nodist use v6 && nodist global v6 && npm run update:global && npm run update:package",
-    "update:global": "npm update -g npm && npm i -g git://github.com/gulpjs/gulp.git#4.0",
+    "update:global": "npm update -g npm",
     "update:package": "npm update -D && npm update -S && npm remove -S node-notifier && npm i -D node-notifier@4.5.0",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -22,7 +25,6 @@
     "babel-polyfill": "^6.13.0",
     "camelize": "^1.0.0",
     "date-with-offset": "^1.0.1",
-    "gulp": "git://github.com/gulpjs/gulp.git#4.0",
     "snakeize": "^0.1.0"
   },
   "devDependencies": {

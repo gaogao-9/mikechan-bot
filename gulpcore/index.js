@@ -18,6 +18,7 @@ gulp.task("babel:debug", babel(
 		sourcemap: true,
 	},
 ));
+
 gulp.task("babel", babel(
 	"src/**/*.js",
 	"dist",
@@ -52,6 +53,7 @@ gulp.task("release", gulp.series(
 gulp.task("watch:debug", function watch(){
 	return gulp.watch(["src/**/*.js"], gulp.task("build:debug"));
 });
+
 gulp.task("watch", function watch(){
 	return gulp.watch(["src/**/*.js"], gulp.task("build"));
 });
