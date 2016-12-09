@@ -1,1 +1,0 @@
-"use strict";Object.defineProperty(exports,"__esModule",{value:true});var _mikechan=require("./mikechan");var _mikechan2=_interopRequireDefault(_mikechan);function _interopRequireDefault(obj){return obj&&obj.__esModule?obj:{default:obj};}exports.default=[_mikechan2.default];module.exports=exports["default"];

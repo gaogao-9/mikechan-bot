@@ -40,6 +40,8 @@ jspm_packages
 # temp directory
 temp
 
+# dist directory
+dist
+
 # secret token
 src/setting.js
-dist/setting.js
