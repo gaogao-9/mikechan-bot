@@ -9,7 +9,7 @@
     "debug": "gulp build",
     "release": "gulp release",
     "watch": "gulp watch:debug",
-    "install": "npm run build:release",
+    "install": "npm run release",
     "start": "node ./dist/index",
     "update:win": "nodist use v6 && nodist global v6 && npm run update:global && npm run update:package",
     "update:global": "npm update -g npm",
