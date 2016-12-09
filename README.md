@@ -13,11 +13,8 @@ process.env.SLACK_BOT_TOKEN_(bot名を大文字表記したもの) = "xoxb-XXXXX
 
 もしくは、実行時パラメータに直接指定する。どっちでも良いのでトークンを与えればおｋ。
 
-次に、以下のコマンドをぶち込む。win向けしか用意してないので他のOS向けは適宜PRが欲しい。
-
 ```bash
-npm run update:win
-gulp release
+npm install
 ```
 
 distディレクトリが出来たら成功。実行時には
@@ -28,3 +25,21 @@ npm start
 
 でおk。
 
+ビルド時には
+
+```bash
+npm run debug   # デバッグビルド
+npm run release # リリースビルド
+npm run watch   # デバッグビルドのwatchコマンド
+npm run build   # デバッグビルド & デバッグビルドのwatchコマンド
+```
+
+で使い分けが出来る。
+
+[now](https://zeit.co/now) へのデプロイ方法は
+
+```bash
+npm run deploy
+```
+
+でおｋ。
