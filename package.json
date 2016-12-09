@@ -4,6 +4,7 @@
   "description": "ミケちゃんがslackの平和を守ります",
   "main": "./dist/index",
   "scripts": {
+    "deploy": "node ./deploy.js",
     "build:debug": "gulp build",
     "build:release": "gulp release",
     "install": "npm run build:release",
